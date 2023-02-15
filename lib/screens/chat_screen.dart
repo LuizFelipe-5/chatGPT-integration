@@ -7,6 +7,7 @@ import 'package:chatgpt_integration/providers/models_provider.dart';
 import 'package:chatgpt_integration/services/assets_manager.dart';
 import 'package:chatgpt_integration/services/services.dart';
 import 'package:chatgpt_integration/widgets/chat_widget.dart';
+import 'package:chatgpt_integration/widgets/text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
@@ -148,7 +149,30 @@ class _ChatScreenState extends State<ChatScreen> {
     required ModelsProvider modelsProvider,
     required ChatProvider chatProvider,
   }) async {
+    if (_isTyping) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: TextWidget(
+            label: 'You have to wait the AI answer',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    if (textEditingController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: TextWidget(
+            label: 'Please type a message',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     try {
+      String message = textEditingController.text;
       setState(() {
         _isTyping = true;
         // chatList.add(
@@ -157,12 +181,12 @@ class _ChatScreenState extends State<ChatScreen> {
         //     chatIndex: 0,
         //   ),
         // );
-        chatProvider.addUserMessage(message: textEditingController.text);
+        chatProvider.addUserMessage(message: message);
         textEditingController.clear();
         focusNode.unfocus();
       });
       await chatProvider.sendMessageAndGetAnswers(
-        message: textEditingController.text,
+        message: message,
         modelId: modelsProvider.getCurrentModel,
       );
 
@@ -173,6 +197,14 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {});
     } catch (e) {
       log('error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: TextWidget(
+            label: e.toString(),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       setState(() {
         scrollListToEnd();
