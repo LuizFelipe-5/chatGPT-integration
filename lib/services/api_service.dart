@@ -21,7 +21,6 @@ class ApiService {
 
       Map jsonResponse = jsonDecode(response.body);
       if (jsonResponse['error'] != null) {
-        // print('jsonResponse["error"] ${jsonResponse["error"]["message"]}');
         throw HttpException(jsonResponse['error']['message']);
       }
 
@@ -60,15 +59,12 @@ class ApiService {
 
       Map jsonResponse = jsonDecode(response.body);
       if (jsonResponse['error'] != null) {
-        // print('jsonResponse["error"] ${jsonResponse["error"]["message"]}');
         throw HttpException(jsonResponse['error']['message']);
       }
 
       List<ChatModel> chatList = [];
 
       if (jsonResponse['choices'].length > 0) {
-        // log(jsonResponse['choices'][0]['text']);
-
         chatList = List.generate(
           jsonResponse['choices'].length,
           (index) => ChatModel(
